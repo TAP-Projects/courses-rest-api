@@ -17,16 +17,15 @@ const app = express();
 app.use(morgan('dev'));
 
 // Testing the connection to the database
-sequelize
-  .authenticate()
-  .then(function(err) {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(function (err) {
-    console.log('Unable to connect to the database:', err);
-  });
+// sequelize
+//   .authenticate()
+//   .then(function(err) {
+//     console.log('Connection has been established successfully.');
+//   })
+//   .catch(function (err) {
+//     console.log('Unable to connect to the database:', err);
+//   });
 
-// TODO setup your api routes here
 
 function asyncHandler(cb){
   return async (req,res, next) => {
@@ -47,9 +46,11 @@ app.get('/', (req, res) => {
 
 // GET /api/users 200 - Returns the currently authenticated user
 app.get('/api/users', asyncHandler(async (req, res)=>{
-  const users = await getAll("Users");
-  res.status(200).json(users);
-}));
+    const users = await getAll("User");
+    //{"getAll": getAll.toString()}
+    res.status(200).json(users);
+  })
+);
 
 // POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content
 
