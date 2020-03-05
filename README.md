@@ -1,2 +1,5 @@
-# courses-rest-api
-An REST API created with Node.js, Express.js, SQLite and Sequelize ORM
+# Courses REST API
+
+## What is this?
+
+Courses REST API is a demonstration REST API built in Node.js, Express.js, Sequelize and PostgreSQL. 
