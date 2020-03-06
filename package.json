@@ -1,11 +1,17 @@
 {
   "name": "courses-rest-api",
   "version": "1.0.0",
-  "description": "A REST API built with Node.js, Express.js, Sequelize, and PostgreSQL",
+  "description": "A demonstration REST API built with Node.js, Express.js, Sequelize, and PostgreSQL",
+  "homepage": "https://github.com/TAP-Projects/courses-rest-api#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TAP-Projects/courses-rest-api"
+  },
+  "issues": "https://github.com/TAP-Projects/courses-rest-api/issues",
   "main": "app.js",
   "scripts": {
     "start": "nodemon ./bin/www",
-    "seed": "cross-env DB_ENABLE_LOGGING=true node './seed'",
+    "seed": "cross-env DB_ENABLE_LOGGING=true node './db/seed'",
     "debug": "DEBUG=courses-rest-api:* npm start"
   },
   "keywords": [
@@ -23,6 +29,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "core-js": "^3.6.4",
     "cross-env": "^7.0.1",
     "express": "^4.16.3",
     "morgan": "^1.9.0",

@@ -5,7 +5,7 @@ const express = require('express');
 // Needed to test connection to db
 const sequelize = require('./db').sequelize;
 const morgan = require('morgan');
-const [getAll] = require('./controllers');
+//const [getAll] = require('./controllers');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -44,10 +44,20 @@ app.get('/', (req, res) => {
   });
 });
 
+const db = require('./db');
+const models = db.models;
+// const { User, Course } = db.models
+console.log("What is models right now? ", models);
+
+async function getAll(model){
+    const records = await User.findAll();
+    return records;
+    //return { ...db.models, "Did it work":"lets see" }
+}
+
 // GET /api/users 200 - Returns the currently authenticated user
 app.get('/api/users', asyncHandler(async (req, res)=>{
     const users = await getAll("User");
-    //{"getAll": getAll.toString()}
     res.status(200).json(users);
   })
 );

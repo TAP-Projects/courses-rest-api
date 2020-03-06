@@ -27,6 +27,8 @@ const server = http.createServer(app);
  */
 
 // Sync with the database before starting to listen to the port
+// sequelize.sync will sync all of the models
+// force:true drops all tables and recreates then each time the app starts
 sequelize.sync().then(() => {
     server.listen(port);
     server.on('error', onError);
