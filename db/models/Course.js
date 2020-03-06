@@ -4,7 +4,8 @@ const { Sequelize, DataTypes, Model } = require('sequelize');
 const options = {
 	id: {
 		type: DataTypes.INTEGER,
-		allowNull: false,
+		autoIncrement: true,
+		allowNull: true,
 		primaryKey: true,
 		field: 'id'
 	},
@@ -35,14 +36,14 @@ const options = {
 module.exports = function(sequelize) {
 	class Course extends Model {}
 	Course.init(options,{sequelize, modelName: 'Course'});
-	// Course.associate = models => {
-    //     Course.hasMany(models.User, {
-    //         as: 'student', // alias
-    //         foreignKey: {
-    //             fieldName: 'studentId',
-    //             allowNull: false,
-    //         },
-    //     });
-    // };
+	Course.associate = models => {
+        Course.belongsTo(models.User, {
+            as: 'student', // alias
+            foreignKey: {
+                fieldName: 'studentId',
+                allowNull: false,
+            },
+        });
+    };
 	return Course
 };
