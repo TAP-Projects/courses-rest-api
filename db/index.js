@@ -7,6 +7,7 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config.json')[env];
 const db = {};
+db.models = [];
 
 // Instantiate a Sequelize instance called 'sequelize' and pass in the appropriate configuration options
 let sequelize;
@@ -30,7 +31,7 @@ fs
     // Import the model and save a reference to that. Again, use path.join to append the model directory to the absolute path containing this index.js file, before finally appending the file
     const model = sequelize['import'](path.join(__dirname, 'models', file));
     // Add the model to db as a new property at model.name
-    db[model.name] = model;
+    db.models[model.name] = model;
   });
 
   // For each model in db, call associate on that model

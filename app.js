@@ -44,15 +44,49 @@ app.get('/', (req, res) => {
   });
 });
 
-// GET /api/users 200 - Returns the currently authenticated user
+/**********************
+***** USER ROUTES *****
+***********************/
+
+// GET /api/users 200 - Returns users
 app.get('/api/users', asyncHandler(async (req, res)=>{
     const users = await getAll("User");
-    //{"getAll": getAll.toString()}
     res.status(200).json(users);
   })
 );
 
+// GET /api/users/:id 200 - Returns single user
+app.get('/api/users/:id', asyncHandler(async (req, res)=>{
+    const user = await getAll("User", req.params.id);
+    res.status(200).json(user);
+  })
+);
+
 // POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content
+
+/**********************
+***** COURSE ROUTES ***
+***********************/
+
+// GET /api/courses 200 - Returns the courses
+app.get('/api/courses', asyncHandler(async (req, res)=>{
+  const courses = await getAll("Course");
+  res.status(200).json(courses);
+})
+);
+
+// GET /api/courses/:id 200 - Returns single course
+app.get('/api/courses/:id', asyncHandler(async (req, res)=>{
+  const course = await getAll("Course", req.params.id);
+  res.status(200).json(course);
+})
+);
+
+// POST /api/courses 201 - Creates a course, sets the Location header to "/", and returns no content
+
+/**********************
+***** ERROR ROUTES ****
+***********************/
 
 // send 404 if no other route matched
 app.use((req, res) => {
