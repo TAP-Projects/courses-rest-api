@@ -59,7 +59,7 @@ async function updateCourse(courseId){
     }
 }
 
-async function deleteUser(userId){
+async function destroyUser(userId){
     try{
         const theUser = await User.findByPk(userId);
         // delete
@@ -70,7 +70,7 @@ async function deleteUser(userId){
     }
 }
 
-async function deleteCourse(courseId){
+async function destroyCourse(courseId){
     try{
         const theCourse = await Course.create(courseId);
         // make update
@@ -81,7 +81,7 @@ async function deleteCourse(courseId){
     }
 }
 
-module.exports = [getAll, createUser, createCourse]
+module.exports = [getAll, createUser, createCourse, updateUser, updateCourse, destroyUser, destroyCourse]
 
 //some options for findAll 
 // {order: [['createdAt', 'DESC']]}

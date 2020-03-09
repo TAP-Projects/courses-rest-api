@@ -6,7 +6,7 @@ const express = require("express");
 const sequelize = require("./db").sequelize;
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-const [getAll, createUser, createCourse] = require("./controllers");
+const [getAll, createUser, updateUser, destroyUser, createCourse, updateCourse, destroyCourse] = require("./controllers");
 
 // variable to enable global error logging
 const enableGlobalErrorLogging =
@@ -57,8 +57,23 @@ app.get("/", (req, res) => {
 app.get(
 	"/api/users",
 	asyncHandler(async (req, res) => {
-		const users = await getAll("User");
-		res.status(200).json(users);
+		// Catch any errors
+		try {
+			// Await the call to getAll, which will return all users
+			const users = await getAll("User");
+			// If there are users, then
+			if (users.length > 0) {
+				// Respond with the user data
+				res.status(200).json(users);
+			// If there are no users, then
+			} else {
+				// Respond with a 404
+				res.status(404).json({ message: "No users found." });
+			}
+		// If there's an error, respond with a server error message
+		} catch (err) {
+			res.status(500).json({ message: err.message });
+		}
 	})
 );
 
@@ -66,16 +81,34 @@ app.get(
 app.get(
 	"/api/users/:id",
 	asyncHandler(async (req, res) => {
-		const user = await getAll("User", req.params.id);
-		res.status(200).json(user);
-	})
+		// Catch any errors
+		try {
+			// Await the call to getAll, which wil return the user with the given id
+			const user = await getAll("User", req.params.id);
+			// If there is a user with that id, then
+			if (user) {
+				// Respond with the user data
+				res.status(200).json(user);
+			// If there is no user with that id, then
+			} else {
+				// Respond with a 404
+				res.status(404).json({ message: "User not found." });
+			}
+		// If there's an error, respond with a server error message
+		} catch (err) {
+			res.status(500).json({ message: err.message });
+		}
+	});
 );
 
 // POST /api/users 204 - Creates a user, sets the Location header to "/", and returns no content
 app.post(
 	"/api/users",
 	asyncHandler(async (req, res) => {
+		// Await the call to createUser, which will create a new user in the database with the given object
+		//!NOTE: Where will error handling take place?
 		await createUser(req.body);
+		// Respond done
 		res.status(204).end();
 	})
 );
@@ -84,18 +117,27 @@ app.post(
 app.put(
 	"/api/users/:id",
 	asyncHandler(async (req, res) => {
-		try{
-      let user = await getAll("User", req.params.id);
-      if (user) {
-        user = {...user, ...req.body};
-		    await updateUser(user);
-        res.status(204).end();
-      } else {
-        res.status(404).json({message: "User not found."});
-      }
-    } catch(err){
-      res.status(500).json({message: err.message})
-    }
+		// Catch any errors
+		try {
+			// Await the call to getAll, which wil return the user with the given id
+			let user = await getAll("User", req.params.id);
+			// If there is a user with that id, then
+			if (user) {
+				// Update the user object
+				user = { ...user, ...req.body };
+				// Await the call to updateUser, which updates the user in the database
+				await updateUser(user);
+				// Respond done
+				res.status(204).end();
+			// If there is no user with that id, then
+			} else {
+				// Respond with a 404
+				res.status(404).json({ message: "User not found." });
+			}
+		// If there's an error, respond with a server error message
+		} catch (err) {
+			res.status(500).json({ message: err.message });
+		}
 	})
 );
 
@@ -103,9 +145,25 @@ app.put(
 app.delete(
 	"/api/users",
 	asyncHandler(async (req, res) => {
-		const user = await updateUser("User", req.params.id);
-		// ??? something something something
-		res.status(204).end();
+		// Catch any errors
+		try {
+			// Await the call to getAll, which wil return the user with the given id
+			let user = await getAll("User", req.params.id);
+			// If there is a user with that id, then
+			if (user) {
+				// Await the call to destroyUser, which will delete the user with the given id
+				await destroyUser("User", req.params.id);
+				// Respond done
+				res.status(204).end();
+			// If there is no user with that id, then
+			} else {
+				// Respond with a 404
+				res.status(404).json({ message: "User not found." });
+			}
+		// If there's an error, respond with a server error message
+		} catch (err) {
+			res.status(500).json({ message: err.message });
+		}
 	})
 );
 
@@ -144,18 +202,27 @@ app.post(
 app.put(
 	"/api/courses/:id",
 	asyncHandler(async (req, res) => {
-		try{
-      let course = await getAll("Course", req.params.id);
-      if (course) {
-        course = {...course, ...req.body};
-		    await updateCourse(course);
-        res.status(204).end();
-      } else {
-        res.status(404).json({message: "Course not found."});
-      }
-    } catch(err){
-      res.status(500).json({message: err.message})
-    }
+		try {
+			// Get the course
+			let course = await getAll("Course", req.params.id);
+			// If there is a course with that id, then
+			if (course) {
+				// Update the course object
+				course = { ...course, ...req.body };
+				// Update the course in the database
+				await updateCourse(course);
+				// Respond done
+				res.status(204).end();
+			// If there isn't a course with that id, then
+			} else {
+				// Respond with a 404
+				res.status(404).json({ message: "Course not found." });
+			}
+		// Catch any errors
+		} catch (err) {
+			// Respond with a server error message
+			res.status(500).json({ message: err.message });
+		}
 	})
 );
 
