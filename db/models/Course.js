@@ -2,33 +2,32 @@
 const { Sequelize, DataTypes, Model } = require('sequelize');
 
 const options = {
-	id: {
-		type: DataTypes.INTEGER,
-		autoIncrement: true,
-		allowNull: true,
-		primaryKey: true,
-		field: 'id'
-	},
+
 	title: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
+		unique: true,
+		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, },
 		defaultValue: '',
 		field: 'title'
 	},
 	description: {
 		type: DataTypes.TEXT,
 		allowNull: false,
+		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, },
 		defaultValue: '',
 		field: 'description'
 	},
 	estimatedTime: {
 		type: DataTypes.STRING(255),
 		allowNull: true,
+		validate: { isNumeric: true },
 		field: 'estimatedTime'
 	},
 	materialsNeeded: {
 		type: DataTypes.STRING(255),
 		allowNull: true,
+		validate: { isAlphanumeric: true, },
 		field: 'materialsNeeded'
 	}
 }

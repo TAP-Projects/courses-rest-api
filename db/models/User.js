@@ -1,36 +1,32 @@
 'use strict';
 const { Sequelize, DataTypes, Model } = require('sequelize');
 
+//! I still need to add more specific validation to what I have below
 const options = {
-	id: {
-		type: DataTypes.INTEGER,
-		autoIncrement: true,
-		allowNull: true,
-		primaryKey: true,
-		field: 'id'
-	},
+
 	firstName: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, },
 		field: 'firstName'
 	},
 	lastName: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		validate: {notNull: true, notEmpty: true, isAlphanumeric: true,},
 		field: 'lastName'
 	},
 	emailAddress: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		unique: true,
+		validate: {isEmail: true,},
 		field: 'emailAddress'
 	},
 	password: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, len: [8,16], },
 		field: 'password'
 	}
 }
