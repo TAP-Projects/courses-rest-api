@@ -1,51 +1,11 @@
+//!TODO: Extract the try catch statement as a separate wrapper function (asyncHandler)
+//!TODO: Extract a newError function into which I can pass a status and message
+//!TODO: Extract the if...else authentication statement as a separate wrapper function
+
+const bcryptjs = require("bcryptjs");
 const { models } = require("../db");
 const { Course } = models;
 const { body, validationResult } = require("express-validator");
-
-// Express-Validator validation
-//!NOTE: PUT routes do NOT use Sequelize's built in validation. That's why we're using express-validator here. POST routes do use Sequelize for validation, so no other validation is necessary. See model definitions for validation details.
-function validate(model) {
-	switch (model) {
-		case "user": {
-			return [
-				body("firstName", "Provide a first name.")
-					.exists({ checkNull: true, checkFalsy: true })
-					.isString()
-					.trim(),
-				body("lastName", "Provide a last name.")
-					.exists({ checkNull: true, checkFalsy: true })
-					.isString()
-					.trim(),
-				body("emailAddress", "Invalid email")
-					.exists({ checkNull: true, checkFalsy: true })
-					.isEmail()
-					.normalizeEmail(),
-				body("password")
-					.exists({ checkNull: true, checkFalsy: true })
-					.isString()
-					.trim()
-			];
-		}
-		case "course": {
-			return [
-				body("title", "Provide a course title.")
-					.exists({ checkNull: true, checkFalsy: true })
-					.isString()
-					.trim(),
-				body("description", "Provide a course description.")
-					.exists({ checkNull: true, checkFalsy: true })
-					.isString()
-					.trim(),
-				body("estimatedTime", "Provide an estimated time.")
-					.isString()
-					.trim(),
-                body("materialsNeeded", "Text only.")
-                    .isString()
-                    .trim()
-			];
-		}
-	}
-}
 
 // Retrieve all users from db and send as json
 async function getCourses(req, res, next) {
@@ -86,17 +46,27 @@ async function getCourseById(req, res, next) {
 
 async function createCourse(req, res, next) {
 	try {
-		// Await the creation of the user in the database
-		const newCourse = await Course.create(req.body);
-		// Find the record that was just created
-		const foundNewCourse = await Course.findByPk(newCourse.id);
-		if (foundNewCourse) {
-			// Respond "created"
-			res.status(201).end();
+		// Get the authenticated user, which will only be set if authentication succeeded
+		const user = req.currentUser;
+		// If the user exists, then proceed
+		if (user) {
+			// Await the creation of the user in the database
+			const newCourse = await Course.create(req.body);
+			// Find the record that was just created
+			const foundNewCourse = await Course.findByPk(newCourse.id);
+			if (foundNewCourse) {
+				// Respond "created"
+				res.status(201).end();
+			} else {
+				const err = new Error();
+				err.status = 500;
+				err.message = `Failed to create course.`;
+				next(err);
+			}
 		} else {
 			const err = new Error();
-			err.status = 500;
-			err.message = `Failed to create course.`;
+			err.status = 401;
+			err.message = `Access denied.`;
 			next(err);
 		}
 	} catch (error) {
@@ -105,34 +75,47 @@ async function createCourse(req, res, next) {
 }
 
 async function updateCourse(req, res, next) {
+	
 	// Finds the validation errors in this request and wraps them in an object with handy functions
-	//!NOTE: This depends on the route having an array of checks
+	//!NOTE: This depends on the update route having an array of checks
 	const errors = validationResult(req);
+	// If there are errors
 	if (!errors.isEmpty()) {
+		// Respond with status 422 and an array of the errors. 
 		return res.status(422).json({ errors: errors.array() });
 	}
 
 	try {
-		let course = await Course.findByPk(req.params.id);
-		// If user is found, then...
-		if (course) {
-            // Update the user object with new values and primary key
-            //!NOTE: Not sure why it's necessary to set id explicitly like this, but it's necessary in order for the where option to work correctly
-			course = { ...course, ...req.body, id:req.params.id };
-            // Update the user in the db
-            //!NOTE: Not sure why the where option is required
-			await Course.update(course, {where: {id:course.id}});
-			// Respond "no-content"
-			res.status(204).end();
-		// If user is not found
+		// Get the authenticated user, which will only be set if authentication succeeded
+		const user = req.currentUser;
+		// If the user exists, then proceed
+		if (user) {
+			let course = await Course.findByPk(req.params.id);
+			// If user is found, then...
+			if (course) {
+				// Update the user object with new values and primary key
+				//!NOTE: Not sure why it's necessary to set id explicitly like this, but it's necessary in order for the where option to work correctly
+				course = { ...course, ...req.body, id: req.params.id };
+				// Update the user in the db
+				//!NOTE: Not sure why the where option is required
+				await Course.update(course, { where: { id: course.id } });
+				// Respond "no-content"
+				res.status(204).end();
+				// If user is not found
+			} else {
+				// Create a new error
+				const err = new Error();
+				// Set status to 500
+				err.status = 500;
+				// Set custom message
+				err.message = `Cannot update course. No course with ID ${req.params.id}.`;
+				// Pass to global error handler
+				next(err);
+			}
 		} else {
-			// Create a new error
 			const err = new Error();
-			// Set status to 500
-			err.status = 500;
-			// Set custom message
-			err.message = `Cannot update course. No course with ID ${req.params.id}.`;
-			// Pass to global error handler
+			err.status = 401;
+			err.message = `Access denied.`;
 			next(err);
 		}
 	} catch (error) {
@@ -143,22 +126,32 @@ async function updateCourse(req, res, next) {
 
 async function destroyCourse(req, res, next) {
 	try {
-		let course = await Course.findByPk(req.params.id);
-		// If user is found, then...
-		if (course) {
-			// Update the user in the db
-			Course.destroy(course);
-			// Respond "no-content"
-			res.status(204).end();
-			// If user is not found
+		// Get the authenticated user, which will only be set if authentication succeeded
+		const user = req.currentUser;
+		// If the user exists, then proceed
+		if (user) {
+			let course = await Course.findByPk(req.params.id);
+			// If user is found, then...
+			if (course) {
+				// Update the user in the db
+				Course.destroy(course);
+				// Respond "no-content"
+				res.status(204).end();
+				// If user is not found
+			} else {
+				// Create a new error
+				const err = new Error();
+				// Set status to 500
+				err.status = 500;
+				// Set custom message
+				err.message = `Cannot delete course. No course with ID ${req.params.id}.`;
+				// Pass to global error handler
+				next(err);
+			}
 		} else {
-			// Create a new error
 			const err = new Error();
-			// Set status to 500
-			err.status = 500;
-			// Set custom message
-			err.message = `Cannot delete course. No course with ID ${req.params.id}.`;
-			// Pass to global error handler
+			err.status = 401;
+			err.message = `Access denied.`;
 			next(err);
 		}
 	} catch (error) {
@@ -168,7 +161,6 @@ async function destroyCourse(req, res, next) {
 }
 
 module.exports = [
-	validate,
 	getCourses,
 	getCourseById,
 	createCourse,

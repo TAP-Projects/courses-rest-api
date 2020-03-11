@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
-const [validate, getUsers, getUserById, createUser, updateUser, destroyUser] = require("../controllers/user.js");
+const [getUsers, getUserById, createUser, updateUser, destroyUser] = require("../controllers/user.js");
+const validate = require("../controllers/validate.js");
+const authenticateUser = require("../controllers/authenticateUser.js");
 
 /**********************
  ***** USER ROUTES *****
@@ -15,12 +17,12 @@ router.get("/:id", getUserById);
 
 
 // POST /api/users 204 - Creates a user, sets the Location header to "/", and returns no content
-router.post("/", createUser);
+router.post("/", authenticateUser, createUser);
 
 // PUT /api/users/:id 204 - Update a user, sets the Location header to "/", and returns no content
-router.put("/:id", validate("user"), updateUser);
+router.put("/:id", validate("user"), authenticateUser, updateUser);
 
 // DELETE /api/users/:id 204 - Delete a user, sets the Location header to "/", and returns no content
-router.delete("/:id", destroyUser);
+router.delete("/:id", authenticateUser, destroyUser);
 
 module.exports = router;

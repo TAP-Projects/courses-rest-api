@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
-const [validate, getCourses, getCourseById, createCourse, updateCourse, destroyCourse] = require("../controllers/course.js");
+const [getCourses, getCourseById, createCourse, updateCourse, destroyCourse] = require("../controllers/course.js");
+const validate = require("../controllers/validate.js")
+const authenticateUser = require("../controllers/authenticateUser.js");
+
 
 /**********************
  ***** COURSE ROUTES *****
@@ -15,12 +18,12 @@ router.get("/:id", getCourseById);
 
 
 // POST /api/courses 204 - Creates a user, sets the Location header to "/", and returns no content
-router.post("/", createCourse);
+router.post("/", authenticateUser, createCourse);
 
 // PUT /api/courses/:id 204 - Update a user, sets the Location header to "/", and returns no content
-router.put("/:id", validate("course"), updateCourse);
+router.put("/:id", validate("course"), authenticateUser, updateCourse);
 
 // DELETE /api/courses/:id 204 - Delete a user, sets the Location header to "/", and returns no content
-router.delete("/:id", destroyCourse);
+router.delete("/:id", authenticateUser, destroyCourse);
 
 module.exports = router;

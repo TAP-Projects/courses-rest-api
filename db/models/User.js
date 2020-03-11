@@ -25,7 +25,7 @@ const options = {
 	password: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, len: [8,16], },
+		validate: { notNull: true, notEmpty: true },
 		field: 'password'
 	}
 }
