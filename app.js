@@ -3,7 +3,8 @@ const express = require("express");
 const sequelize = require("./db").sequelize;
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-const routes = require("./routes");
+const userRoutes = require("./routes/user");
+const courseRoutes = require("./routes/course");
 
 // variable to enable global error logging
 const enableGlobalErrorLogging =
@@ -25,7 +26,8 @@ app.get("/", (req, res) => {
 });
 
 // Api routes
-app.use("/api", routes);
+app.use("/api/users", userRoutes);
+app.use("/api/courses", courseRoutes);
 
 // Test connection to db
 sequelize

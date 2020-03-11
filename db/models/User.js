@@ -1,7 +1,6 @@
 'use strict';
 const { Sequelize, DataTypes, Model } = require('sequelize');
 
-//! I still need to add more specific validation to what I have below
 const options = {
 
 	firstName: {

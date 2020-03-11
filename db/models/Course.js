@@ -7,21 +7,19 @@ const options = {
 		type: DataTypes.STRING(255),
 		allowNull: false,
 		unique: true,
-		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, },
-		defaultValue: '',
+		validate: { notNull: true, notEmpty: true },
 		field: 'title'
 	},
 	description: {
 		type: DataTypes.TEXT,
 		allowNull: false,
-		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, },
-		defaultValue: '',
+		validate: { notNull: true, notEmpty: true },
 		field: 'description'
 	},
 	estimatedTime: {
 		type: DataTypes.STRING(255),
 		allowNull: true,
-		validate: { isNumeric: true },
+		validate: {},
 		field: 'estimatedTime'
 	},
 	materialsNeeded: {
