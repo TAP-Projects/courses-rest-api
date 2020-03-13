@@ -35,7 +35,7 @@ module.exports = function(sequelize) {
 	User.init(options,{sequelize, modelName:'User'});
 	User.associate = models => {
         User.hasMany(models.Course, {
-            as: 'student', // alias
+            as: 'studentId', // alias
             foreignKey: {
                 fieldName: 'studentId',
                 allowNull: false,

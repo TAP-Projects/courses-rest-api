@@ -17,8 +17,11 @@ function testAuth(req, res, next){
     const user = req.currentUser;
     // If the user exists, then proceed
     //!NOTE: It's a good idea to use an if...else here, because, if we were to omit the else, Express would still call the second next() statement. You can avoid that by using return as in  if(user){ return next() }
-    if (user) { next() } 
-    else { next(newError('401', 'Access denied.')) }
+    if (user) { 
+        next() 
+    } else { 
+        next(newError(401, 'Access denied.'));
+    }
 }
 
 // Create a custom error

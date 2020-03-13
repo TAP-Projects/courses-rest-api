@@ -1,14 +1,20 @@
+const bcryptjs = require("bcryptjs");
 const auth = require("basic-auth");
+const { models } = require("../db");
+const { User } = models;
 
 async function authenticateUser(req, res, next) {
 
 	// Parse the user's credentials from the Authorization header.
 	const credentials = auth(req);
+
+	// Message holder
+	let message = '';
     
     // If the user's credentials are available...
 	if (credentials) {
 		// Attempt to retrieve the user from the db by email address. The email was supplied as the user's "key" in the Authorization header, but in credentials, it's stored as credentials.name.
-		const user = await User.findAll({
+		const user = await User.findOne({
 			where: { emailAddress: credentials.name }
 		});
 
@@ -16,9 +22,7 @@ async function authenticateUser(req, res, next) {
 		if (user) {
             // Use the bcryptjs to compare the user's password (from the Authorization header) to the user's password that was retrieved from the data store. compareSync will hash the password from the header before the comparison. 
             //? How does bcryptjs know what seed to use when hashing the password it got from the authorization header?
-			const authenticated = bcryptjs.compareSync(
-				credentials.pass,
-				user.password
+			const authenticated = bcryptjs.compareSync(credentials.pass, user.password
 			);
 
 			// If the passwords match...
