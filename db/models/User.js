@@ -2,34 +2,30 @@
 const { Sequelize, DataTypes, Model } = require('sequelize');
 
 const options = {
-	id: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-		primaryKey: true,
-		field: 'id'
-	},
+
 	firstName: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, },
 		field: 'firstName'
 	},
 	lastName: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		validate: {notNull: true, notEmpty: true, isAlphanumeric: true,},
 		field: 'lastName'
 	},
 	emailAddress: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		unique: true,
+		validate: {isEmail: true,},
 		field: 'emailAddress'
 	},
 	password: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		defaultValue: '',
+		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, len: [8,16], },
 		field: 'password'
 	}
 }

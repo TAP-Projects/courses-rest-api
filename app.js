@@ -1,111 +1,66 @@
-'use strict';
-
-// load modules
-const express = require('express');
-// Needed to test connection to db
-const sequelize = require('./db').sequelize;
-const morgan = require('morgan');
-const [getAll] = require('./controllers');
+"use strict";
+const express = require("express");
+const sequelize = require("./db").sequelize;
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
+const userRoutes = require("./routes/user");
+const courseRoutes = require("./routes/course");
 
 // variable to enable global error logging
-const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
+const enableGlobalErrorLogging =
+	process.env.ENABLE_GLOBAL_ERROR_LOGGING === "true";
 
 // create the Express app
 const app = express();
 
-// setup morgan which gives us http request logging
-app.use(morgan('dev'));
+// For HTTP request logging
+app.use(morgan("dev"));
+// For access to request.body
+app.use(bodyParser.json());
 
-// Testing the connection to the database
-sequelize
-  .authenticate()
-  .then(function(err) {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(function (err) {
-    console.log('Unable to connect to the database:', err);
-  });
-
-
-function asyncHandler(cb){
-  return async (req,res, next) => {
-      try {
-          await cb(req, res, next);
-      } catch(err) {
-          next(err);
-      }
-  }
-}
-
-// setup a friendly greeting for the root route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Welcome to the REST API project!',
-  });
+// Home route
+app.get("/", (req, res) => {
+	res.json({
+		message: "Welcome to the REST API project!"
+	});
 });
 
-/**********************
-***** USER ROUTES *****
-***********************/
+// Api routes
+app.use("/api/users", userRoutes);
+app.use("/api/courses", courseRoutes);
 
-// GET /api/users 200 - Returns users
-app.get('/api/users', asyncHandler(async (req, res)=>{
-    const users = await getAll("User");
-    res.status(200).json(users);
-  })
-);
-
-// GET /api/users/:id 200 - Returns single user
-app.get('/api/users/:id', asyncHandler(async (req, res)=>{
-    const user = await getAll("User", req.params.id);
-    res.status(200).json(user);
-  })
-);
-
-// POST /api/users 201 - Creates a user, sets the Location header to "/", and returns no content
+// Test connection to db
+sequelize
+	.authenticate()
+	.then(function(err) {
+		console.log("Connection has been established successfully.");
+	})
+	.catch(function(err) {
+		console.log("Unable to connect to the database:", err);
+	});
 
 /**********************
-***** COURSE ROUTES ***
-***********************/
+ ***** ERROR ROUTES ****
+ ***********************/
 
-// GET /api/courses 200 - Returns the courses
-app.get('/api/courses', asyncHandler(async (req, res)=>{
-  const courses = await getAll("Course");
-  res.status(200).json(courses);
-})
-);
-
-// GET /api/courses/:id 200 - Returns single course
-app.get('/api/courses/:id', asyncHandler(async (req, res)=>{
-  const course = await getAll("Course", req.params.id);
-  res.status(200).json(course);
-})
-);
-
-// POST /api/courses 201 - Creates a course, sets the Location header to "/", and returns no content
-
-/**********************
-***** ERROR ROUTES ****
-***********************/
-
-// send 404 if no other route matched
-app.use((req, res) => {
-  res.status(404).json({
-    message: 'Route Not Found',
-  });
+// Catch unmatched routes, set status, and pass on to global error handler
+app.use((req, res, next) => {
+	const err = new Error("Not found");
+	err.status = 404
+	next(err);
 });
 
 // setup a global error handler
 app.use((err, req, res, next) => {
-  if (enableGlobalErrorLogging) {
-    console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
-  }
+	if (enableGlobalErrorLogging) {
+		console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
+	}
 
-  res.status(err.status || 500).json({
-    message: err.message,
-    stack: err.stack,
-    error: {},
-  });
+	res.status(err.status || 500).json({
+		message: err.message,
+		stack: err.stack,
+		error: {}
+	});
 });
 
 module.exports = app;
