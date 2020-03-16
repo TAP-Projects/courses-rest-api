@@ -69,10 +69,15 @@ async function updateCourse(req, res, next) {
         // Respond with status 422 and an array of the errors.
         return res.status(422).json({errors: errors.array()});
     }
+    
     // Find the course in the db
     let course = await Course.findByPk(req.params.id);
-    // Check for ownership, if owned, proceed
-    mayUpdateDelete();
+    
+	// Exit if not authorized to update. Get the authenticated user, which will only be set if authentication succeeded and make sure that that's the person who owns this course.
+    if(req.currentUser.id !== course.userId) { 
+        return next(newError(401, 'Access denied. User may not update or delete this course.'));
+    }
+    
     // If course found, then...
     if (course) {
         // Update the course object with new values and primary key

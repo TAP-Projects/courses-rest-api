@@ -58,11 +58,15 @@ async function updateUser(req, res, next) {
 	if (!errors.isEmpty()) {
 		return res.status(422).json({ errors: errors.array() });
 	}
-
+	
 	// Await finding the user in the db
 	let user = await User.findByPk(req.params.id);
-	// Check for ownership, if owned, proceed
-	mayUpdateDelete();
+	
+	// Exit if not authorized to update. Get the authenticated user, which will only be set if authentication succeeded, and make sure that that's the person who owns this user profile.
+    if(req.currentUser.id !== user.id) { 
+        return next(newError(401, 'Access denied. User may not update or delete this user.'));
+	}
+
 	// If user is found, then...
 	if (user) {
 		// Update the user object with new values and primary key

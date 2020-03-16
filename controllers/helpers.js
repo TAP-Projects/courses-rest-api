@@ -24,16 +24,17 @@ function testAuth(req, res, next){
     }
 }
 
-// Ensure the user is authenticated
-function mayUpdateDelete(){
-    // Get the authenticated user, which will only be set if authentication succeeded
-    if(req.currentUser.id === course.userId) { 
-        return next() 
-    } else { 
-        // Using return the exit the function
-        return next(newError(401, 'Access denied.'));
-    }
-}
+// // Ensure the user is authenticated as owner when updating
+// function mayUpdateDelete(req, model, next){
+//     // Get the authenticated user, which will only be set if authentication succeeded
+//     console.log("The current user id and the course's user id field: ", req.currentUser.id, course.userId);
+//     if(req.currentUser.id === course.userId) { 
+//         return next() 
+//     } else { 
+//         // Using return the exit the function
+//         return next(newError(401, 'Access denied.'));
+//     }
+// }
 
 // Create a custom error
 function newError(status, message) {
@@ -47,4 +48,4 @@ function newError(status, message) {
     return error;
 }
 
-module.exports = [ asyncHandler, testAuth, newError, mayUpdateDelete ];
+module.exports = [ asyncHandler, testAuth, newError ];
