@@ -24,6 +24,17 @@ function testAuth(req, res, next){
     }
 }
 
+// Ensure the user is authenticated
+function mayUpdateDelete(){
+    // Get the authenticated user, which will only be set if authentication succeeded
+    if(req.currentUser.id === course.userId) { 
+        next() 
+    } else { 
+        // Using return the exit the function
+        return next(newError(401, 'Access denied.'));
+    }
+}
+
 // Create a custom error
 function newError(status, message) {
     // Create a new error instance

@@ -21,17 +21,18 @@ router.get("/:id", asyncHandler(getCourseById));
 // POST /api/courses 204 - Creates a user, sets the Location header to "/", and returns no content
 router.post(
     "/", 
-    validate("course"),
     asyncHandler(authenticateUser), 
     testAuth,
     asyncHandler(createCourse)
 );
 
-// PUT /api/courses/:id 204 - Update a user, sets the Location header to "/", and returns no content
+// PUT /api/courses/:id 204 - Update a user, sets the Location header to "/", and returns no content.
+// Note: Only the put route requires express-validator. Sequelize captures other routes' errors.
 router.put(
     "/:id", 
     validate("course"), 
-    asyncHandler(authenticateUser), 
+    asyncHandler(authenticateUser),
+    // This is superfluous on update and delete 
     testAuth, 
     asyncHandler(updateCourse)
 );
@@ -40,6 +41,7 @@ router.put(
 router.delete(
     "/:id", 
     asyncHandler(authenticateUser),
+    // This is superfluous on update and delete 
     testAuth,
     asyncHandler(destroyCourse)
 );

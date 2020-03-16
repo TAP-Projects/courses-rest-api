@@ -6,7 +6,9 @@ const [newError] = require("../controllers/helpers");
 
 // Retrieve all users from db and send as json
 async function getCourses(req, res, next) {
-	const courses = await Course.findAll();
+	const courses = await Course.findAll({
+		attributes: { include: 'User', exclude: ['updatedAt', 'createdAt'] }
+	});
 	if (courses.length > 0) {
 		res.status(200).json(courses);
 	} else {
@@ -17,7 +19,9 @@ async function getCourses(req, res, next) {
 
 async function getCourseById(req, res, next) {
 	// Await the call to getAll, which will return the user with the given id
-	const course = await Course.findByPk(req.params.id);
+	const course = await Course.findByPk(req.params.id, {
+		attributes: { include: 'User', exclude: ['updatedAt', 'createdAt'] }
+	});
 	// If there is a user with that id, then
 	if (course) {
 		// Respond with the user data
@@ -31,23 +35,17 @@ async function getCourseById(req, res, next) {
 }
 
 async function createCourse(req, res, next) {
-	// Finds the validation errors provided by the check function in this request and wraps them in an object
-	const errors = validationResult(req);
-	// If there are errors
-	if (!errors.isEmpty()) {
-		// Respond with status 422 and an array of the errors.
-		return res.status(422).json({ errors: errors.array() });
-	}
-
 	// Await the creation of the user in the database
 	const newCourse = await Course.create(req.body);
 	// Find the record that was just created
 	const foundNewCourse = await Course.findByPk(newCourse.id);
 	if (foundNewCourse) {
-		// Respond "created"
-		res.status(201).end();
+		// Respond "created", and set the header's location
+		res.status(201)
+			.set("Location", `/${foundNewCourse.id}`)
+			.end();
 	} else {
-		const err = newError(500, 'Failed to create course.');
+		const err = newError(500, "Failed to create course.");
 		next(err);
 	}
 }
@@ -62,7 +60,9 @@ async function updateCourse(req, res, next) {
 	}
 	// Find the course in the db
 	let course = await Course.findByPk(req.params.id);
-	// If found, then...
+	// Check for ownership, if owned, proceed
+	mayUpdateDelete();
+	// If course found, then...
 	if (course) {
 		// Update the course object with new values and primary key
 		course = { ...course, ...req.body, id: req.params.id };
@@ -85,10 +85,12 @@ async function updateCourse(req, res, next) {
 async function destroyCourse(req, res, next) {
 	// Get the course from the db
 	let course = await Course.findByPk(req.params.id);
+	// Check for ownership, if owned, proceed
+	mayUpdateDelete();
 	// If found, then...
 	if (course) {
 		// Destroy it in the db
-		Course.destroy(course);
+		Course.destroy({ where: { id: course.id } });
 		// Respond "no-content"
 		res.status(204).end();
 		// If user is not found
