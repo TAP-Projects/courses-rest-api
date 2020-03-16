@@ -25,7 +25,7 @@ const options = {
 	password: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
-		validate: { notNull: true, notEmpty: true, isAlphanumeric: true, len: [8,16], },
+		validate: { notNull: true, notEmpty: true },
 		field: 'password'
 	}
 }
@@ -35,7 +35,7 @@ module.exports = function(sequelize) {
 	User.init(options,{sequelize, modelName:'User'});
 	User.associate = models => {
         User.hasMany(models.Course, {
-            as: 'student', // alias
+            as: 'studentId', // alias
             foreignKey: {
                 fieldName: 'studentId',
                 allowNull: false,

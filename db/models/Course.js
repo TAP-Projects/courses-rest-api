@@ -27,6 +27,15 @@ const options = {
 		allowNull: true,
 		validate: { isAlphanumeric: true, },
 		field: 'materialsNeeded'
+	},
+	userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+		// Course belongs to User 1:1
+        references: {
+			model: 'User',
+			key: 'id'
+		}
 	}
 }
 
@@ -35,8 +44,9 @@ module.exports = function(sequelize) {
 	Course.init(options,{sequelize, modelName: 'Course'});
 	Course.associate = models => {
         Course.belongsTo(models.User, {
-            as: 'student', // alias
+            as: 'student',
             foreignKey: {
+				// Using the alias 'student' creates the foreign key 'studentId' automatically, but let's be explicit
                 fieldName: 'studentId',
                 allowNull: false,
             },
