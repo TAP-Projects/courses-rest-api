@@ -3,6 +3,14 @@ const { Sequelize, DataTypes, Model } = require('sequelize');
 
 const options = {
 
+	id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		primaryKey: true,
+		autoIncrement: true,
+		field: 'id'
+	},
+
 	title: {
 		type: DataTypes.STRING(255),
 		allowNull: false,
@@ -42,15 +50,12 @@ const options = {
 module.exports = function(sequelize) {
 	class Course extends Model {}
 	Course.init(options,{sequelize});
-	Course.associate = models => Course.belongsTo(models.User);
+	Course.associate = models => Course.belongsTo(models.User, {
+		as: 'owner',
+		foreignKey: {
+			fieldName: 'userId',
+			allowNull: false
+		}
+	});
 	return Course
 };
-
-// {
-// 	as: 'student',
-// 	foreignKey: {
-// 		// Using the alias 'student' creates the foreign key 'studentId' automatically, but let's be explicit
-// 		fieldName: 'studentId',
-// 		allowNull: false,
-// 	},
-// }

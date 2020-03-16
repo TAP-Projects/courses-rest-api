@@ -4,25 +4,17 @@ const {Course, User} = models;
 const {body, validationResult} = require('express-validator');
 const [newError] = require('../controllers/helpers');
 
-// const queryOptions = {
-//     include: [
-//         {
-//             model: User,
-//             as: 'userInfo',
-//             attributes: {
-//                 exclude: ['password', 'createdAt', 'updatedAt'],
-//             },
-//         },
-//     ],
-//     attributes: {
-//         exclude: ['createdAt', 'updatedAt'],
-//     },
-// };
-
 const queryOptions = {
+	// Include the User model to access user information
+	include: {
+		model: User, // The model
+		as: 'owner', // An alias
+		// Attributes to include and/or exclude
+		attributes: { exclude: ['password', 'createdAt', 'updatedAt'] }
+	},
+	// Attribute to exclude from course information
     attributes: {
-		include: User,
-		exclude: ['createdAt', 'updatedAt', 'password']
+		exclude: ['createdAt', 'updatedAt']
 	}
 }
 
