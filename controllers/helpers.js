@@ -28,7 +28,7 @@ function testAuth(req, res, next){
 function mayUpdateDelete(){
     // Get the authenticated user, which will only be set if authentication succeeded
     if(req.currentUser.id === course.userId) { 
-        next() 
+        return next() 
     } else { 
         // Using return the exit the function
         return next(newError(401, 'Access denied.'));
@@ -47,4 +47,4 @@ function newError(status, message) {
     return error;
 }
 
-module.exports = [ asyncHandler, testAuth, newError ];
+module.exports = [ asyncHandler, testAuth, newError, mayUpdateDelete ];

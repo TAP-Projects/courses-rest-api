@@ -41,16 +41,16 @@ const options = {
 
 module.exports = function(sequelize) {
 	class Course extends Model {}
-	Course.init(options,{sequelize, modelName: 'Course'});
-	Course.associate = models => {
-        Course.belongsTo(models.User, {
-            as: 'student',
-            foreignKey: {
-				// Using the alias 'student' creates the foreign key 'studentId' automatically, but let's be explicit
-                fieldName: 'studentId',
-                allowNull: false,
-            },
-        });
-    };
+	Course.init(options,{sequelize});
+	Course.associate = models => Course.belongsTo(models.User);
 	return Course
 };
+
+// {
+// 	as: 'student',
+// 	foreignKey: {
+// 		// Using the alias 'student' creates the foreign key 'studentId' automatically, but let's be explicit
+// 		fieldName: 'studentId',
+// 		allowNull: false,
+// 	},
+// }

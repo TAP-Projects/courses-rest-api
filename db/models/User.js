@@ -32,15 +32,15 @@ const options = {
 
 module.exports = function(sequelize) {
 	class User extends Model {}
-	User.init(options,{sequelize, modelName:'User'});
-	User.associate = models => {
-        User.hasMany(models.Course, {
-            as: 'studentId', // alias
-            foreignKey: {
-                fieldName: 'studentId',
-                allowNull: false,
-            },
-        });
-    };
+	User.init(options,{sequelize});
+	User.associate = models => User.hasMany(models.Course);
 	return User
 };
+
+// , {
+// 	as: 'studentId', // alias
+// 	foreignKey: {
+// 		fieldName: 'studentId',
+// 		allowNull: false,
+// 	},
+// }
